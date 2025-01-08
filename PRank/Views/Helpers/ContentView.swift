@@ -3,7 +3,7 @@
 //  PRank
 //
 //  Created by seb's on 11/12/24.
-//
+
 import SwiftUI
 
 struct ContentView: View {
@@ -17,9 +17,15 @@ struct ContentView: View {
         case profile
     }
     
-    // Aquí definimos los datos de perfil, aunque puedes llenarlo con datos predeterminados o vacíos
-    @State private var profileData = (nickname: "", benchPressPR: "", squatPR: "", deadliftPR: "", birthdate: Date(), name: "", occupation: "")
-
+    // Aquí definimos los datos del perfil
+    @State private var profileName: String = ""
+    @State private var alias: String = ""
+    @State private var birthdate: Date = Date()
+    @State private var benchPressPR: Double? = nil  // Cambiado para ser Optional
+    @State private var squatPR: Double? = nil  // Cambiado para ser Optional
+    @State private var deadliftPR: Double? = nil  // Cambiado para ser Optional
+    @State private var selectedImage: UIImage? = nil
+    
     var body: some View {
         TabView(selection: $selection) {
             // Vista de hombres
@@ -51,7 +57,7 @@ struct ContentView: View {
                 .tag(Tab.map)
             
             // Vista de perfil
-            ProfileFormView(profileData: $profileData) // Aquí pasamos el parámetro profileData
+            ProfileView(profileName: $profileName, selectedImage: $selectedImage, alias: $alias, birthdate: $birthdate, benchPressPR: $benchPressPR, squatPR: $squatPR, deadliftPR: $deadliftPR)
                 .tabItem {
                     Label("Profile", systemImage: "person.circle.fill")
                 }

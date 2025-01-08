@@ -30,7 +30,7 @@ struct PersistenceController {
     }
 
     // Función para guardar datos de perfil
-    func saveProfile(nickname: String, benchPressPR: Double, deadliftPR: Double, birthdate: Date, name: String, occupation: String, squatPR: Double) {
+    func saveProfile(nickname: String, benchPressPR: Double, deadliftPR: Double, birthdate: Date, name: String, occupation: String, squatPR: Double, profileImage: UIImage) {
         let context = container.viewContext
 
         // Crear un nuevo perfil
@@ -42,6 +42,11 @@ struct PersistenceController {
         profile.name = name
         profile.occupation = occupation
         profile.squatPR = squatPR
+
+        // Convertir la imagen a datos binarios
+        if let imageData = profileImage.jpegData(compressionQuality: 0.8) {
+            profile.profileURL = imageData // Guardamos la imagen como datos binarios
+        }
 
         // Guardar el contexto
         do {

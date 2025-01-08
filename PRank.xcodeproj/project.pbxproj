@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9FD5197C2D2E81C1009E5F8A /* Profile+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD5197B2D2E81C1009E5F8A /* Profile+CoreDataProperties.swift */; };
+		9FD5197D2D2E81C1009E5F8A /* Profile+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD5197A2D2E81C1009E5F8A /* Profile+CoreDataClass.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		9F8B2C452CE3DFC2009D13F8 /* PRank.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PRank.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9FD5197A2D2E81C1009E5F8A /* Profile+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Profile+CoreDataClass.swift"; path = "CoreData/Profile+CoreDataClass.swift"; sourceTree = "<group>"; };
+		9FD5197B2D2E81C1009E5F8A /* Profile+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Profile+CoreDataProperties.swift"; path = "CoreData/Profile+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +39,8 @@
 		9F8B2C3C2CE3DFC2009D13F8 = {
 			isa = PBXGroup;
 			children = (
+				9FD5197A2D2E81C1009E5F8A /* Profile+CoreDataClass.swift */,
+				9FD5197B2D2E81C1009E5F8A /* Profile+CoreDataProperties.swift */,
 				9F8B2C472CE3DFC2009D13F8 /* PRank */,
 				9F8B2C462CE3DFC2009D13F8 /* Products */,
 			);
@@ -119,6 +128,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FD5197C2D2E81C1009E5F8A /* Profile+CoreDataProperties.swift in Sources */,
+				9FD5197D2D2E81C1009E5F8A /* Profile+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

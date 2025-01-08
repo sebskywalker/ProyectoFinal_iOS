@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24B91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="Profile" representedClassName="Profile" syncable="YES" codeGenerationType="class">
+    <entity name="Profile" representedClassName="Profile" syncable="YES">
         <attribute name="benchPressPR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="birthdate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="deadliftPR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="nickname" optional="YES" attributeType="String"/>
         <attribute name="occupation" optional="YES" attributeType="String"/>
+        <attribute name="profileURL" optional="YES" attributeType="Binary"/>
         <attribute name="squatPR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
 </model>
