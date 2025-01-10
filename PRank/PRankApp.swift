@@ -9,10 +9,7 @@ import SwiftUI
 
 @main
 struct PRankApp: App {
-    
     @StateObject private var modelData = ModelData()
-    
-    
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
@@ -23,4 +20,3 @@ struct PRankApp: App {
         }
     }
 }
- 

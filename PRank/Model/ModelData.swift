@@ -14,123 +14,100 @@ import Foundation
 import Combine
 
 final class ModelData: ObservableObject {
-    // Datos separados para hombres y mujeres
-    @Published var womenPRanks: [PRank] = load("WomenPRankData.json")
-    @Published var menPRanks: [PRank] = load("PRankData.json")
-    
-    // Orden deseado para las categorías
+    static let shared = ModelData()
+
+    @Published var womenPRanks: [PRank] = []
+    @Published var menPRanks: [PRank] = []
+
     let categoryOrder: [PRank.Category] = [
-        .legend,       // Primero las Leyendas
-        .topglobal,    // Luego los Top Globales
-        .professional, // Profesionales
-        .elite,        // Luego los Elite
-        .advanced,     // Luego los Avanzados
-        .intermediate, // Luego los Intermedios
-        .beginner      // Por último los Principiantes
+        .legend, .topglobal, .professional, .elite, .advanced, .intermediate, .beginner
     ]
-    
-    // Categorías ordenadas para hombres
+
+    init() {
+        loadData()
+        loadSavedProfile()
+    }
+
+    // ✅ Cargar datos desde JSON
+    private func loadData() {
+        self.menPRanks = load("PRankData.json")
+        self.womenPRanks = load("WomenPRankData.json")
+    }
+
+    // ✅ Cargar perfil guardado desde Core Data
+    private func loadSavedProfile() {
+        if let savedProfile = PersistenceController.shared.loadProfile() {
+            let userPRank = PRank(
+                id: Int.random(in: 1000...9999),
+                name: savedProfile.name ?? "Usuario",
+                nickname: savedProfile.name ?? "Usuario",
+                state: "Activo",
+                description: "Perfil creado por el usuario",
+                isFavorite: false,
+                isFeatured: true,
+                category: PRank.Category(rawValue: savedProfile.category ?? "Beginner") ?? .beginner,
+                weightKg: 0.0,
+                weightLbs: 0.0,
+                heightFt: 0.0,
+                prBenchPressKg: savedProfile.benchPressPR,
+                imageName: "photo.fill",
+                coordinates: PRank.Coordinates(latitude: 0.0, longitude: 0.0)
+            )
+
+            if savedProfile.gender == "Men" {
+                self.menPRanks.append(userPRank)
+            } else {
+                self.womenPRanks.append(userPRank)
+            }
+
+            // ✅ Se actualiza el ranking después de cargar el perfil
+            self.updateRankings()
+        }
+    }
+
+    // ✅ Categorías para hombres
     var menCategories: [String: [PRank]] {
         orderCategories(data: menPRanks)
     }
-    
-    // Categorías ordenadas para mujeres
+
+    // ✅ Categorías para mujeres
     var womenCategories: [String: [PRank]] {
         orderCategories(data: womenPRanks)
     }
-    
-    // Filtrar destacados (hombres y mujeres)
-    var menFeatured: [PRank] {
-        menPRanks.filter { $0.isFeatured }
-    }
-    
-    var womenFeatured: [PRank] {
-        womenPRanks.filter { $0.isFeatured }
-    }
-    
-    // Función para ordenar las categorías
+
+    // ✅ Ordenar categorías
     private func orderCategories(data: [PRank]) -> [String: [PRank]] {
-        let grouped = Dictionary(
-            grouping: data,
-            by: { $0.category.rawValue }
-        )
-        
+        let grouped = Dictionary(grouping: data, by: { $0.category.rawValue })
         return grouped.sorted { lhs, rhs in
-            guard
-                let lhsIndex = categoryOrder.firstIndex(where: { $0.rawValue == lhs.key }),
-                let rhsIndex = categoryOrder.firstIndex(where: { $0.rawValue == rhs.key })
-            else {
-                return false
-            }
+            guard let lhsIndex = categoryOrder.firstIndex(where: { $0.rawValue == lhs.key }),
+                  let rhsIndex = categoryOrder.firstIndex(where: { $0.rawValue == rhs.key }) else { return false }
             return lhsIndex < rhsIndex
         }
         .reduce(into: [String: [PRank]]()) { result, pair in
             result[pair.key] = pair.value
         }
     }
-    
-    // Función para calcular el Strength Score
-    private func calculateStrengthScore(for profiles: [PRank], isForMen: Bool) -> [(PRank, Double)] {
-        var scores: [(PRank, Double)] = []
 
-        for profile in profiles {
-            var score: Double = 0.0
-            
-            if isForMen {
-                // Métrica para hombres
-                if let benchPressKg = profile.prBenchPressKg,
-                   let squatKg = profile.prBarbellSquatKg,
-                   let legPressKg = profile.prLegPressKg {
-                    score += benchPressKg * 1.5 + squatKg * 2.0 + legPressKg
-                }
-            } else {
-                // Métrica para mujeres
-                let hipThrustKg = profile.prHipThrustKg ?? 0
-                let squatKg = profile.prBarbellSquatKg ?? 0
-                let legPressKg = profile.prLegPressKg ?? 0
-                score += (hipThrustKg * 1.5) + (squatKg * 1.2) + (legPressKg * 0.8)
-            }
-
-            // Validar y dividir por el peso corporal
-            if profile.weightKg > 0 {
-                score /= profile.weightKg
-            } else {
-                print("Advertencia: Perfil con peso inválido o cero - \(profile.name)")
-                score = 0.0
-            }
-
-            scores.append((profile, score))
-        }
-
-        // Ordenar de mayor a menor puntaje
-        scores.sort { $0.1 > $1.1 }
-
-        return scores
-    }
-    
-    // Función para actualizar los rankings
-    func updateRankings() {
-        // Calcular rankings para hombres
-        let menRankings = calculateStrengthScore(for: menPRanks, isForMen: true)
-        menPRanks = menRankings.map { $0.0 }
-        
-        // Calcular rankings para mujeres
-        let womenRankings = calculateStrengthScore(for: womenPRanks, isForMen: false)
-        womenPRanks = womenRankings.map { $0.0 }
-    }
-    
-    // Función para agregar un nuevo perfil y actualizar rankings
+    // ✅ Método para agregar perfiles en tiempo real
     func addProfile(_ profile: PRank, isForMen: Bool) {
-        if isForMen {
-            menPRanks.append(profile)
-        } else {
-            womenPRanks.append(profile)
+        DispatchQueue.main.async {
+            if isForMen {
+                self.menPRanks.append(profile)
+            } else {
+                self.womenPRanks.append(profile)
+            }
+            self.updateRankings()
         }
-        updateRankings()
     }
-    
-    // Función para obtener la posición en el Top Rank
-    func rankPosition(for profile: PRank, isForMen: Bool) -> Int? {
+
+    // ✅ Método para actualizar rankings
+    func updateRankings() {
+        self.menPRanks.sort { $0.prBenchPressKg ?? 0 > $1.prBenchPressKg ?? 0 }
+        self.womenPRanks.sort { $0.prBenchPressKg ?? 0 > $1.prBenchPressKg ?? 0 }
+    }
+
+    // ✅ Método para obtener la posición en el ranking
+    func getRankPosition(for profile: PRank, isForMen: Bool) -> Int? {
         if isForMen {
             return menPRanks.firstIndex(where: { $0.id == profile.id }).map { $0 + 1 }
         } else {
@@ -139,24 +116,23 @@ final class ModelData: ObservableObject {
     }
 }
 
-// Función para cargar archivos JSON
+// ✅ Función para cargar archivos JSON
 func load<T: Decodable>(_ fileName: String) -> T {
     let data: Data
-    
     guard let file = Bundle.main.url(forResource: fileName, withExtension: nil) else {
-        fatalError("Couldn't find \(fileName) in main bundle.")
+        fatalError("No se encontró \(fileName) en el bundle principal.")
     }
-    
+
     do {
         data = try Data(contentsOf: file)
     } catch {
-        fatalError("Couldn't load \(fileName) from main bundle: \(error)")
+        fatalError("Error al cargar \(fileName): \(error.localizedDescription)")
     }
-    
+
     do {
         let decoder = JSONDecoder()
         return try decoder.decode(T.self, from: data)
     } catch {
-        fatalError("Couldn't decode \(T.self): \(error)")
+        fatalError("Error al decodificar \(fileName): \(error.localizedDescription)")
     }
 }

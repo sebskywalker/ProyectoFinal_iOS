@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selection: Tab = .profile
+    @State private var selection: Tab = .men
 
     enum Tab {
         case men

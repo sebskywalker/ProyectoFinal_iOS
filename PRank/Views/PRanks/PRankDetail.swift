@@ -12,6 +12,7 @@ struct PRankDetail: View {
     var PRank: PRank
     var isForMen: Bool
 
+    // Obtener el índice del PRank en la lista correspondiente
     var PRankIndex: Int {
         if isForMen {
             return modelData.menPRanks.firstIndex(where: { $0.id == PRank.id }) ?? 0
@@ -20,8 +21,9 @@ struct PRankDetail: View {
         }
     }
 
+    // Calcular la posición en el ranking
     var rankPosition: Int? {
-        modelData.rankPosition(for: PRank, isForMen: isForMen)
+        modelData.getRankPosition(for: PRank, isForMen: isForMen)
     }
 
     var body: some View {
@@ -48,6 +50,8 @@ struct PRankDetail: View {
                         .font(.title)
                         .fontWeight(.bold)
                     Spacer()
+
+                    // ✅ Corrección del Binding
                     FavoriteButton(isSet: isForMen
                         ? $modelData.menPRanks[PRankIndex].isFavorite
                         : $modelData.womenPRanks[PRankIndex].isFavorite
@@ -98,34 +102,11 @@ struct PRankDetail: View {
                     if let trainingSpot = PRank.trainingSpot {
                         Text("Training Spot: \(trainingSpot)")
                     }
-                    // Usar `primeAge` como fallback si no hay `currentAge`
                     if let age = isForMen ? PRank.primeAge : PRank.primeAge ?? PRank.currentAge {
                         Text("Age: \(age)")
                     }
                     Text("Weight: \(PRank.weightKg, specifier: "%.1f") kg (\(PRank.weightLbs, specifier: "%.1f") lbs)")
                     Text("Height: \(PRank.heightFt, specifier: "%.2f") ft")
-                }
-
-                Divider()
-
-                // Records personales
-                Text("Personal Records (PRs)")
-                    .font(.headline)
-                VStack(alignment: .leading, spacing: 8) {
-                    if isForMen {
-                        if let benchPressKg = PRank.prBenchPressKg, let benchPressLbs = PRank.prBenchPressLbs {
-                            Text("Bench Press: \(benchPressKg, specifier: "%.1f") kg (\(benchPressLbs, specifier: "%.1f") lbs)")
-                        }
-                    }
-                    if let hipThrustKg = PRank.prHipThrustKg, let hipThrustLbs = PRank.prHipThrustLbs {
-                        Text("Hip Thrust: \(hipThrustKg, specifier: "%.1f") kg (\(hipThrustLbs, specifier: "%.1f") lbs)")
-                    }
-                    if let squatKg = PRank.prBarbellSquatKg, let squatLbs = PRank.prBarbellSquatLbs {
-                        Text("Barbell Squat: \(squatKg, specifier: "%.1f") kg (\(squatLbs, specifier: "%.1f") lbs)")
-                    }
-                    if let legPressKg = PRank.prLegPressKg, let legPressLbs = PRank.prLegPressLbs {
-                        Text("Leg Press: \(legPressKg, specifier: "%.1f") kg (\(legPressLbs, specifier: "%.1f") lbs)")
-                    }
                 }
             }
             .padding()

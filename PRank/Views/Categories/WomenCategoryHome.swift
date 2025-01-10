@@ -36,7 +36,7 @@ struct WomenCategoryHome: View {
                         }
                     }
 
-                    // Categorías en orden especificado
+                    // ✅ Categorías en orden especificado
                     ForEach(modelData.categoryOrder.map { $0.rawValue }, id: \.self) { key in
                         if let items = modelData.womenCategories[key] {
                             UnifiedCategoryRow(
@@ -48,8 +48,8 @@ struct WomenCategoryHome: View {
                         }
                     }
                 }
+                .background(Color("Background1"))
             }
-            .background(Color("Background1"))
             .navigationTitle("Women")
         }
     }

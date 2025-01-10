@@ -21,6 +21,11 @@ extension Profile {
     @NSManaged public var occupation: String?
     @NSManaged public var squatPR: Double
     @NSManaged public var profileURL: Data?  // Cambiado a Data para almacenar la imagen como Binary Data
+    
+    // Nuevos atributos
+       @NSManaged public var gender: String?   // Agregar el atributo `gender`
+       @NSManaged public var category: String? // Agregar el atributo `category`
+   
 }
 
 extension Profile : Identifiable {

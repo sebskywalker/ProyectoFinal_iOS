@@ -12,6 +12,9 @@ struct DetailProfileView: View {
 
     @State var profileName: String
     @State var selectedImage: UIImage?
+    @State var gender: String // Nuevo atributo
+    @State var category: String // Nuevo atributo
+    @State var benchPressPR: Double // Nuevo atributo
 
     var body: some View {
         VStack {
@@ -35,6 +38,18 @@ struct DetailProfileView: View {
                 .fontWeight(.bold)
                 .padding()
 
+            Text("Género: \(gender)")
+                .font(.body)
+                .padding()
+
+            Text("Categoría: \(category)")
+                .font(.body)
+                .padding()
+
+            Text("Bench Press PR: \(benchPressPR, specifier: "%.2f") kg")
+                .font(.body)
+                .padding()
+
             Spacer()
 
             // Botón para editar el perfil
@@ -48,7 +63,13 @@ struct DetailProfileView: View {
             .sheet(isPresented: $isEditing, onDismiss: {
                 refreshProfileData() // Actualizamos los datos al salir de la edición
             }) {
-                ProfileEditView(profileName: $profileName, selectedImage: $selectedImage)
+                ProfileEditView(
+                    profileName: $profileName,
+                    selectedImage: $selectedImage,
+                    gender: $gender,
+                    category: $category,
+                    benchPressPR: $benchPressPR
+                )
             }
         }
         .navigationBarTitle("Perfil Guardado", displayMode: .inline)
@@ -58,6 +79,9 @@ struct DetailProfileView: View {
     private func refreshProfileData() {
         if let savedProfile = PersistenceController.shared.loadProfile() {
             profileName = savedProfile.name ?? ""
+            gender = savedProfile.gender ?? "No especificado"
+            category = savedProfile.category ?? "No especificada"
+            benchPressPR = savedProfile.benchPressPR
             if let imageData = savedProfile.profileURL {
                 selectedImage = UIImage(data: imageData)
             }

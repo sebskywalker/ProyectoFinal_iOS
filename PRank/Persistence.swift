@@ -20,27 +20,37 @@ struct PersistenceController {
 
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
-                print("Core Data error: \(error), \(error.userInfo)")
+                fatalError("Error al cargar Core Data: \(error), \(error.userInfo)")
             }
         }
     }
 
-    // Guardar el perfil
-    func saveProfile(name: String, profileImage: UIImage?) {
+    // ✅ Guardar perfil
+    func saveProfile(
+        name: String,
+        gender: String,
+        category: String,
+        benchPressPR: Double,
+        profileImage: UIImage?,
+        completion: @escaping (PRank) -> Void
+    ) {
         let context = container.viewContext
 
-        // Borrar el perfil anterior (opcional si solo se permite un perfil)
+        // Eliminar perfil previo para sobrescribir
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Profile.fetchRequest()
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
         do {
             try context.execute(deleteRequest)
         } catch {
             print("Error al borrar perfiles antiguos: \(error)")
         }
 
-        // Crear un nuevo perfil
         let profile = Profile(context: context)
         profile.name = name
+        profile.gender = gender
+        profile.category = category
+        profile.benchPressPR = benchPressPR
         if let imageData = profileImage?.jpegData(compressionQuality: 0.8) {
             profile.profileURL = imageData
         }
@@ -48,14 +58,36 @@ struct PersistenceController {
         do {
             try context.save()
             print("Perfil guardado correctamente")
+
+            // ✅ Crear PRank para agregarlo al ranking
+            let newPRank = PRank(
+                id: Int.random(in: 1000...9999),
+                name: name,
+                nickname: name,
+                state: "Activo",
+                description: "Usuario registrado",
+                isFavorite: false,
+                isFeatured: true,
+                category: PRank.Category(rawValue: category) ?? .beginner,
+                weightKg: 0.0,
+                weightLbs: 0.0,
+                heightFt: 0.0,
+                imageName: "photo.fill",
+                coordinates: PRank.Coordinates(latitude: 0.0, longitude: 0.0)
+            )
+
+            // ✅ Devolver PRank para agregarlo en tiempo real
+            completion(newPRank)
+
         } catch {
             print("Error al guardar perfil: \(error.localizedDescription)")
         }
     }
 
-    // Cargar el perfil guardado
+    // ✅ Cargar perfil guardado
     func loadProfile() -> Profile? {
         let fetchRequest: NSFetchRequest<Profile> = Profile.fetchRequest()
+
         do {
             let profiles = try container.viewContext.fetch(fetchRequest)
             return profiles.first

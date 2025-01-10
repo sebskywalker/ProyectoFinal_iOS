@@ -4,12 +4,11 @@
 //
 //  Created by seb's on 11/16/24.
 //
-
 import SwiftUI
 
 struct CategoryHome: View {
     @EnvironmentObject var modelData: ModelData
-    @State private var currentIndex = 0 // Para manejar el índice del carrusel
+    @State private var currentIndex = 0
     private let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -19,7 +18,7 @@ struct CategoryHome: View {
                     // Carrusel de imágenes
                     TabView(selection: $currentIndex) {
                         ForEach(1..<5) { index in
-                            Image("Feature\(index)") // Asegúrate de tener imágenes nombradas como "Feature1", "Feature2", etc.
+                            Image("Feature\(index)")
                                 .resizable()
                                 .scaledToFill()
                                 .frame(height: 250)
@@ -36,7 +35,7 @@ struct CategoryHome: View {
                         }
                     }
 
-                    // Categorías en orden especificado
+                    // ✅ Categorías en orden especificado
                     ForEach(modelData.categoryOrder.map { $0.rawValue }, id: \.self) { key in
                         if let items = modelData.menCategories[key] {
                             UnifiedCategoryRow(
@@ -48,9 +47,8 @@ struct CategoryHome: View {
                         }
                     }
                 }
-                .background(Color("Background1")) // Fondo gris para todo el contenido
+                .background(Color("Background1"))
             }
-            .background(Color("Background1")) // Fondo gris completo
             .navigationTitle("Men")
         }
     }
