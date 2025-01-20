@@ -8,7 +8,6 @@ import SwiftUI
 import MapKit
 
 struct GymMapView: View {
-    @State private var searchText: String = ""
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 19.323621, longitude: -99.228773), // Ubicación de Smart Fit San Jerónimo
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom cercano
@@ -17,30 +16,26 @@ struct GymMapView: View {
         Gym(name: "Smart Fit San Jerónimo", leader: "CBUM", location: CLLocationCoordinate2D(latitude: 19.323621, longitude: -99.228773)),
         Gym(name: "Gym Independencia", leader: "Ronnie Coleman", location: CLLocationCoordinate2D(latitude: 19.3365, longitude: -99.2130)),
         Gym(name: "Fitness Pro", leader: "Arnold Schwarzenegger", location: CLLocationCoordinate2D(latitude: 19.3345, longitude: -99.2150)),
-        Gym(name: "Olympus Gym Santa Úrsula", leader: "Fernando Guzman", location: CLLocationCoordinate2D(latitude: 19.2925, longitude: -99.1714)) // Coordenadas actualizadas
+        Gym(name: "Olympus Gym Santa Úrsula", leader: "Fernando Guzman", location: CLLocationCoordinate2D(latitude: 19.2925, longitude: -99.1714)),
+        Gym(name: "Powerhouse Gym", leader: "Jay Cutler", location: CLLocationCoordinate2D(latitude: 19.2830, longitude: -99.1800)),
+        Gym(name: "Gold's Gym", leader: "Dorian Yates", location: CLLocationCoordinate2D(latitude: 19.2855, longitude: -99.1900)),
+        Gym(name: "Beast Mode Fitness", leader: "Kai Greene", location: CLLocationCoordinate2D(latitude: 19.3000, longitude: -99.2000)),
+        Gym(name: "Iron Paradise", leader: "The Rock", location: CLLocationCoordinate2D(latitude: 19.3100, longitude: -99.2100)),
+        Gym(name: "Titan Gym", leader: "Phil Heath", location: CLLocationCoordinate2D(latitude: 19.3200, longitude: -99.2200))
     ]
     @State private var selectedGym: Gym? = nil // Gimnasio seleccionado
     @State private var showLeaderView = false // Controla la vista emergente
 
-    var filteredGyms: [Gym] {
-        if searchText.isEmpty {
-            return gyms
-        } else {
-            return gyms.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-    }
-
     var body: some View {
         ZStack(alignment: .top) {
             // Mapa
-            Map(coordinateRegion: $region, annotationItems: filteredGyms) { gym in
+            Map(coordinateRegion: $region, annotationItems: gyms) { gym in
                 MapAnnotation(coordinate: gym.location) {
                     Button(action: {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                             selectedGym = gym
                             showLeaderView = true
                         }
-                        // Cierra la vista emergente automáticamente después de 5 segundos
                         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                             if selectedGym == gym {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -62,38 +57,43 @@ struct GymMapView: View {
             }
             .ignoresSafeArea()
 
-            // Barra de búsqueda
+            // Barra de selección tipo scroll
             VStack(spacing: 0) {
-                HStack {
-                    TextField("Search gyms or leaders...", text: $searchText)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                    if !searchText.isEmpty {
-                        Button(action: {
-                            searchText = ""
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                                .padding(.trailing)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(gyms) { gym in
+                            Button(action: {
+                                withAnimation {
+                                    selectedGym = gym
+                                    region.center = gym.location // Actualiza la ubicación en el mapa
+                                }
+                            }) {
+                                Text(gym.name)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(selectedGym == gym ? Color.blue : Color.gray.opacity(0.7))
+                                    .cornerRadius(10)
+                                    .foregroundColor(.white)
+                                    .font(.caption)
+                            }
                         }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.top, 10)
+                .padding(.vertical, 8)
+                .background(Color.black.opacity(0.8))
 
                 // Vista emergente para mostrar al líder del gimnasio
                 if showLeaderView, let gym = selectedGym {
                     GymLeaderView(gym: gym, showLeaderView: $showLeaderView)
-                        .transition(.asymmetric(insertion: .move(edge: .top), removal: .opacity)) // Animación al aparecer/desaparecer
+                        .transition(.asymmetric(insertion: .move(edge: .top), removal: .opacity))
                         .animation(.easeInOut, value: showLeaderView)
                 }
 
                 Spacer()
             }
         }
-        .background(Color.black.edgesIgnoringSafeArea(.all)) // Fondo negro
+        .background(Color.black.edgesIgnoringSafeArea(.all))
     }
 }
 
@@ -146,11 +146,5 @@ struct GymLeaderView: View {
         .cornerRadius(15)
         .padding(.horizontal)
         .shadow(radius: 10)
-    }
-}
-
-struct GymMapView_Previews: PreviewProvider {
-    static var previews: some View {
-        GymMapView()
     }
 }

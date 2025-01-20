@@ -28,12 +28,12 @@ struct PRankDetail: View {
 
     var body: some View {
         ScrollView {
-            // Mapa
+            // Mapa con ubicación
             MapView(coordinate: PRank.locationCoordinates)
                 .ignoresSafeArea(edges: .top)
                 .frame(height: 300)
 
-            // Imagen circular
+            // Imagen circular del atleta
             CircleImage(image: PRank.image)
                 .frame(width: 250, height: 250)
                 .clipShape(Circle())
@@ -50,15 +50,15 @@ struct PRankDetail: View {
                         .font(.title)
                         .fontWeight(.bold)
                     Spacer()
-
-                    // ✅ Corrección del Binding
+                    
+                    // Botón para marcar como favorito
                     FavoriteButton(isSet: isForMen
                         ? $modelData.menPRanks[PRankIndex].isFavorite
                         : $modelData.womenPRanks[PRankIndex].isFavorite
                     )
                 }
 
-                // Subtítulo y ubicación
+                // Apodo y ubicación
                 HStack {
                     Text(PRank.nickname)
                         .font(.subheadline)
@@ -71,7 +71,7 @@ struct PRankDetail: View {
 
                 Divider()
 
-                // Mostrar ranking destacado
+                // Mostrar ranking global
                 if let rank = rankPosition {
                     Text(rank <= 10
                          ? "\(rank.ordinal()) place in the global top"
@@ -107,6 +107,26 @@ struct PRankDetail: View {
                     }
                     Text("Weight: \(PRank.weightKg, specifier: "%.1f") kg (\(PRank.weightLbs, specifier: "%.1f") lbs)")
                     Text("Height: \(PRank.heightFt, specifier: "%.2f") ft")
+                }
+
+                Divider()
+
+                // Sección de Personal Records (PRs)
+                Text("Personal Records (PRs)")
+                    .font(.headline)
+                VStack(alignment: .leading, spacing: 8) {
+                    if let benchPR = PRank.prBenchPressKg {
+                        Text("Bench Press: \(benchPR, specifier: "%.1f") kg (\(PRank.prBenchPressLbs ?? 0, specifier: "%.1f") lbs)")
+                    }
+                    if let squatPR = PRank.prBarbellSquatKg {
+                        Text("Barbell Squat: \(squatPR, specifier: "%.1f") kg (\(PRank.prBarbellSquatLbs ?? 0, specifier: "%.1f") lbs)")
+                    }
+                    if let hipThrustPR = PRank.prHipThrustKg {
+                        Text("Hip Thrust: \(hipThrustPR, specifier: "%.1f") kg (\(PRank.prHipThrustLbs ?? 0, specifier: "%.1f") lbs)")
+                    }
+                    if let legPressPR = PRank.prLegPressKg {
+                        Text("Leg Press: \(legPressPR, specifier: "%.1f") kg (\(PRank.prLegPressLbs ?? 0, specifier: "%.1f") lbs)")
+                    }
                 }
             }
             .padding()
